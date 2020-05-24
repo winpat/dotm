@@ -28,6 +28,8 @@ def touch_dotrc(source_dir, dotrc):
     files = flatten(dotrc.values())
     for f in files:
         Path(f"{source_dir}/{f}").touch()
+    with open(f"{source_dir}/.dotrc", "w") as f:
+        yaml.dump(dotrc, f)
     return files
 
 
