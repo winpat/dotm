@@ -49,6 +49,7 @@ def print_status(existing, created):
 
 
 def partition(pred, iterable):
+    """Partition an iterable by a predicate."""
     t1, t2 = tee(iterable)
     return filterfalse(pred, t1), filter(pred, t2)
 
