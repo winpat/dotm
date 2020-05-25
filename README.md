@@ -9,7 +9,7 @@ A dotfile manager with support for host specific configuration.
 Use the [nix package manager](https://nixos.org/nix) to install dotm.
 
 ```bash
-nix-env -i dotm
+nix-env -f default.nix -i dotm
 ```
 
 ## Usage
