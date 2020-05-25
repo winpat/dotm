@@ -1,5 +1,7 @@
 # dotm
 
+[![Build](https://github.com/winpat/dotm/workflows/Test/badge.svg)](https://github.com/winpat/dotm/actions?query=workflow%3ATest+branch%3Amaster)
+
 A dotfile manager with support for host specific configuration.
 
 ## Installation
@@ -7,15 +9,15 @@ A dotfile manager with support for host specific configuration.
 Use the [nix package manager](https://nixos.org/nix) to install dotm.
 
 ```bash
-nix-env -i dotm 
+nix-env -i dotm
 ```
 
 ## Usage
 Add a .dotrc file to your dotfiles repository. The dotrc file describes which
-files should be linked depending on the hostname. If you want to link a file 
+files should be linked depending on the hostname. If you want to link a file
 on every host, configure it under the "all" key:
 
-```python
+```yaml
 all:
   - .emacs
   - .tmux.conf
