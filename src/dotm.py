@@ -14,17 +14,10 @@ Dotfile = namedtuple("Dotfile", ["source", "destination", "relative"])
 
 
 def source_dir():
-    src_dir = getenv("DOTM_SOURCE_DIR")
-    if src_dir:
-        return dir_dir
     return getcwd()
 
 
 def destination_dir():
-    destination = getenv("DOTM_DEST_DIR")
-    if destination:
-        return destination
-    # Fallback to home directory
     return path.expanduser("~")
 
 
@@ -66,7 +59,7 @@ def exists(df):
 def link(config, source_dir, dest_dir):
     # Extract relevant links from config
     hostname = gethostname()
-    file_paths = [*config.get(hostname, []), *config.get("all", [])]
+    file_paths = config.get(hostname, []) + config.get("all", [])
 
     if not file_paths:
         print(f'There are no files matching the host "{hostname}".')
