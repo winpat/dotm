@@ -24,7 +24,7 @@ all:
   - .bashrc
 laptop:
   - .config/i3
-desktop
+desktop:
   - .config/openbox
 ```
 
