@@ -85,8 +85,12 @@ def link(config, source_dir, dest_dir):
     return existing, missing
 
 
-if __name__ == "__main__":
+def main():
     source = source_dir()
     dest = destination_dir()
     config = load_config(source)
     link(source, dest, config)
+
+
+if __name__ == "__main__":
+    main()

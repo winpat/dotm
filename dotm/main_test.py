@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from conftest import touch_dotrc
-from dotm import link, load_config
+from dotm.conftest import touch_dotrc
+from dotm.main import link, load_config
 
 
 def test_missing_dotrc(source_dir, capsys):
@@ -30,7 +30,7 @@ def test_invalid_dotrc(source_dir, capsys):
 def test_host_specific_dotrc(source_dir, dest_dir, dotrc, mocker):
 
     files = touch_dotrc(source_dir, dotrc)
-    mocker.patch("dotm.gethostname", return_value="host1")
+    mocker.patch("dotm.main.gethostname", return_value="host1")
 
     link(dotrc, source_dir, dest_dir)
 
