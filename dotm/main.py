@@ -89,7 +89,7 @@ def main():
     source = source_dir()
     dest = destination_dir()
     config = load_config(source)
-    link(source, dest, config)
+    link(config, source, dest)
 
 
 if __name__ == "__main__":
