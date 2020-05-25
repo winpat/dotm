@@ -6,7 +6,7 @@ from pathlib import Path
 from itertools import filterfalse, tee
 from collections import namedtuple
 from socket import gethostname
-from os import getcwd, path, getenv
+from os import getcwd, path
 from sys import exit
 
 
@@ -14,10 +14,12 @@ Dotfile = namedtuple("Dotfile", ["source", "destination", "relative"])
 
 
 def source_dir():
+    """Return path to source directory."""
     return getcwd()
 
 
 def destination_dir():
+    """Return path to destination directory."""
     return path.expanduser("~")
 
 
@@ -57,6 +59,7 @@ def exists(df):
 
 
 def link(config, source_dir, dest_dir):
+    """Link relevant dotfiles according to .dotrc configuration."""
     # Extract relevant links from config
     hostname = gethostname()
     file_paths = config.get(hostname, []) + config.get("all", [])
@@ -76,12 +79,10 @@ def link(config, source_dir, dest_dir):
         dotfiles.append(Dotfile(source, dest, fp))
 
     missing, existing = partition(exists, dotfiles)
-
     for p in missing:
         Path(p.destination).symlink_to(p.source)
 
     print_status(existing, missing)
-
     return existing, missing
 
 
