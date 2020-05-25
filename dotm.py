@@ -36,7 +36,11 @@ def load_config(source_dir):
         exit(1)
 
     with open(dotrc_path) as f:
-        return yaml.load(f, Loader=yaml.BaseLoader)
+        try:
+            return yaml.load(f, Loader=yaml.BaseLoader)
+        except yaml.YAMLError:
+            print(".dotrc is not valid")
+            exit(1)
 
 
 def print_status(existing, created):

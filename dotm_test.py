@@ -25,3 +25,15 @@ def test_link(source_dir, dest_dir, dotrc, mocker):
         p = Path(f"{dest_dir}/{f}")
         assert p.is_symlink()
         assert p.resolve(f"{source_dir}/{f}")
+
+
+def test_invalid_dotrc(source_dir, capsys):
+    dotrc = Path(source_dir) / ".dotrc"
+    dotrc.write_text("somekey: somevalue: someothervalue")
+
+    with pytest.raises(SystemExit) as we:
+        load_config(source_dir)
+        assert we.value.code == 1
+
+    captured = capsys.readouterr()
+    assert captured.out == ".dotrc is not valid\n"
