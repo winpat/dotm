@@ -41,7 +41,7 @@ nix-shell
 
 To run the suite, simply launch pytest:
 ```bash
-pytest --isort ---flake8
+pytest --isort ---flake8 --black
 ```
 
 

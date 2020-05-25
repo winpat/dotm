@@ -12,6 +12,7 @@ stdenv.mkDerivation {
     python37Packages.pytest-mock
     python37Packages.pytest-isort
     python37Packages.pytest-flake8
+    python37Packages.pytest-black
 
     python37Packages.ipython
     python37Packages.black
