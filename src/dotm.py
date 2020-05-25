@@ -1,14 +1,13 @@
 """A basic dotfile manager with support for host specific configurations."""
 
-import yaml
-
-from pathlib import Path
-from itertools import filterfalse, tee
 from collections import namedtuple
-from socket import gethostname
+from itertools import filterfalse, tee
 from os import getcwd, path
+from pathlib import Path
+from socket import gethostname
 from sys import exit
 
+import yaml
 
 Dotfile = namedtuple("Dotfile", ["source", "destination", "relative"])
 

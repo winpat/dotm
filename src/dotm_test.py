@@ -1,8 +1,9 @@
+from pathlib import Path
+
 import pytest
 
-from dotm import load_config, link
 from conftest import flatten, touch_dotrc
-from pathlib import Path
+from dotm import link, load_config
 
 
 def test_missing_dotrc(source_dir, capsys):
