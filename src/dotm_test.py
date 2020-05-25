@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import flatten, touch_dotrc
+from conftest import touch_dotrc
 from dotm import link, load_config
 
 
