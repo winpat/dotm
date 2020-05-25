@@ -33,6 +33,18 @@ Then simply run dotm in the same directory:
 dotm
 ```
 
+## Development
+You can spawn an environment with all dependencies using nix-shell:
+```bash
+nix-shell
+```
+
+To run the suite, simply launch pytest:
+```bash
+pytest --isort ---flake8
+```
+
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
