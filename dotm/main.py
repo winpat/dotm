@@ -38,12 +38,14 @@ def load_config(source_dir):
 
 
 def print_status(existing, created):
-    print("The following files were not touched:")
-    for df in existing:
-        print(df.relative)
-    print("The following were symlinked:")
-    for df in created:
-        print(df.relative)
+    if existing:
+        print("The following files were not touched:")
+        for df in existing:
+            print("\t", df.relative)
+    if created:
+        print("The following were symlinked:")
+        for df in created:
+            print("\t", df.relative)
 
 
 def partition(pred, iterable):
