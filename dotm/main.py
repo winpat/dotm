@@ -54,7 +54,20 @@ def partition(pred, iterable):
 
 def exists(df):
     """Check if a dotfile exists and points to the correct file."""
-    return path.realpath(df.destination) == df.source
+    # TODO: What should we do if the file is a link pointing to a different location?
+    dest_path = Path(df.destination)
+
+    if not dest_path.exists():
+        return False
+
+    if dest_path.is_symlink() and str(dest_path.resolve()) == df.source:
+        return True
+
+    print(
+        f"File {df.destination} already exists and is not managed by dotm.",
+        " Please remove it manually.",
+    )
+    exit(1)
 
 
 def link(config, source_dir, dest_dir):

@@ -40,7 +40,7 @@ def test_host_specific_dotrc(source_dir, dest_dir, dotrc, mocker):
         assert p.resolve(f"{source_dir}/{f}")
 
 
-def test_existing_dotfile(source_dir, dest_dir):
+def test_existing_dotfile_link(source_dir, dest_dir):
     dotfile = ".emacs"
     dotrc = {"all": [dotfile]}
     touch_dotrc(source_dir, dotrc)
@@ -53,6 +53,23 @@ def test_existing_dotfile(source_dir, dest_dir):
     existing, missing = link(dotrc, source_dir, dest_dir)
     assert len(existing) == 1
     assert len(missing) == 0
+
+
+def test_existing_dotfile_file(source_dir, dest_dir, capsys):
+    """Ensure that dotm will not override existing files which are not symlinks."""
+    dotfile = ".emacs"
+    dotrc = {"all": [dotfile]}
+    touch_dotrc(source_dir, dotrc)
+
+    dotfile = Path(dest_dir, dotfile)
+    dotfile.touch()
+
+    with pytest.raises(SystemExit) as we:
+        link(dotrc, source_dir, dest_dir)
+        assert we.value.code == 1
+
+    captured = capsys.readouterr()
+    assert "already exists" in captured.out
 
 
 def test_missing_dotfile(source_dir, dest_dir):
