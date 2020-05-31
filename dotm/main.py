@@ -1,35 +1,23 @@
 """A basic dotfile manager with support for host specific configurations."""
 
 from collections import namedtuple
-from itertools import filterfalse, tee
-from os import getcwd, path
 from pathlib import Path
 from socket import gethostname
 from sys import exit
 
 import yaml
 
-Dotfile = namedtuple("Dotfile", ["source", "destination", "relative"])
-
-
-def source_dir():
-    """Return path to source directory."""
-    return getcwd()
-
-
-def destination_dir():
-    """Return path to destination directory."""
-    return path.expanduser("~")
+Dotfile = namedtuple("Dotfile", ["source", "target", "name"])
 
 
 def load_config(source_dir):
     """Load .dotrc file."""
-    dotrc_path = path.join(source_dir, ".dotrc")
-    if not path.isfile(dotrc_path):
+    dotrc = source_dir / ".dotrc"
+    if not dotrc.is_file():
         print("Source directory does not contain a .dotrc file")
         exit(1)
 
-    with open(dotrc_path) as f:
+    with dotrc.open() as f:
         try:
             return yaml.load(f, Loader=yaml.BaseLoader)
         except yaml.YAMLError:
@@ -37,74 +25,83 @@ def load_config(source_dir):
             exit(1)
 
 
+def relevant_files(config):
+    hostname = gethostname()
+    file_paths = config.get(hostname, []) + config.get("all", [])
+    if not file_paths:
+        print(f'There are no files matching the host "{hostname}".')
+        exit(1)
+    return file_paths
+
+
+def target_exists(df):
+    """Check if a dotfile exists and points to the correct file."""
+    if df.target.is_symlink() and df.target.resolve() == df.source:
+        return True
+    return False
+
+
+def source_exists(df):
+    return df.source.is_file() or df.source.is_dir()
+
+
+def create(df):
+    df.target.symlink_to(df.source)
+
+
+def conflicts(df):
+    exists = df.target.exists()
+    linked_correctly = df.target.is_symlink() and df.target.resolve() == df.source
+    return exists and not linked_correctly
+
+
 def print_status(existing, created):
     if existing:
         print("The following files were not touched:")
         for df in existing:
-            print("\t", df.relative)
+            print("\t", df.name)
     if created:
         print("The following were symlinked:")
         for df in created:
-            print("\t", df.relative)
+            print("\t", df.name)
 
 
-def partition(pred, iterable):
-    """Partition an iterable by a predicate."""
-    t1, t2 = tee(iterable)
-    return list(filterfalse(pred, t1)), list(filter(pred, t2))
-
-
-def exists(df):
-    """Check if a dotfile exists and points to the correct file."""
-    # TODO: What should we do if the file is a link pointing to a different location?
-    dest_path = Path(df.destination)
-
-    if not dest_path.exists():
-        return False
-
-    if dest_path.is_symlink() and str(dest_path.resolve()) == df.source:
-        return True
-
-    print(
-        f"File {df.destination} already exists and is not managed by dotm.",
-        " Please remove it manually.",
-    )
-    exit(1)
-
-
-def link(config, source_dir, dest_dir):
+def link(config, source_dir, target_dir):
     """Link relevant dotfiles according to .dotrc configuration."""
-    # Extract relevant links from config
-    hostname = gethostname()
-    file_paths = config.get(hostname, []) + config.get("all", [])
+    existing = []
+    created = []
+    for path in relevant_files(config):
+        dotfile = Dotfile(
+            source=Path(source_dir, path), target=Path(target_dir, path), name=path
+        )
 
-    if not file_paths:
-        print(f'There are no files matching the host "{hostname}".')
-        exit(1)
-
-    dotfiles = []
-    for fp in file_paths:
-        source = path.join(source_dir, fp)
-        if not (path.isfile(source) or path.isdir(source)):
-            print(f"Source file {source} does not exist!")
+        if not source_exists(dotfile):
+            print(f"Source file {dotfile.source} does not exist!")
             exit(1)
 
-        dest = path.join(dest_dir, fp)
-        dotfiles.append(Dotfile(source, dest, fp))
+        if conflicts(dotfile):
+            print(
+                f"Target file {dotfile.source} is conflicting."
+                " Please resolve the conflict manually!"
+            )
+            exit(1)
 
-    missing, existing = partition(exists, dotfiles)
-    for p in missing:
-        Path(p.destination).symlink_to(p.source)
+        if target_exists(dotfile):
+            existing.append(dotfile)
+            continue
 
-    print_status(existing, missing)
-    return existing, missing
+        create(dotfile)
+        created.append(dotfile)
+
+    print_status(existing, created)
+    return existing, created
 
 
 def main():
-    source = source_dir()
-    dest = destination_dir()
-    config = load_config(source)
-    link(config, source, dest)
+    source_dir = Path.cwd()
+    target_dir = Path.home()
+    config = load_config(source_dir)
+    link(config, source_dir, target_dir)
 
 
 if __name__ == "__main__":

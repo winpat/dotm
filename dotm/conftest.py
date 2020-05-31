@@ -8,14 +8,14 @@ import yaml
 def source_dir(tmp_path):
     source = tmp_path / "source"
     source.mkdir()
-    return str(source)
+    return source
 
 
 @pytest.fixture
 def dest_dir(tmp_path):
     dest = tmp_path / "destination"
     dest.mkdir()
-    return str(dest)
+    return dest
 
 
 @pytest.fixture

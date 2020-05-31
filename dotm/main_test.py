@@ -46,8 +46,8 @@ def test_existing_dotfile_link(source_dir, dest_dir):
     touch_dotrc(source_dir, dotrc)
 
     # Ensure the link exists
-    source_file = Path(source_dir, dotfile)
-    link_target = Path(dest_dir, dotfile)
+    source_file = source_dir / dotfile
+    link_target = dest_dir / dotfile
     link_target.symlink_to(source_file)
 
     existing, missing = link(dotrc, source_dir, dest_dir)
@@ -69,7 +69,7 @@ def test_existing_dotfile_file(source_dir, dest_dir, capsys):
         assert we.value.code == 1
 
     captured = capsys.readouterr()
-    assert "already exists" in captured.out
+    assert "Please resolve the conflict manually!" in captured.out
 
 
 def test_missing_dotfile(source_dir, dest_dir):
