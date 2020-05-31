@@ -85,7 +85,7 @@ def link(config, source_dir, dest_dir):
     dotfiles = []
     for fp in file_paths:
         source = path.join(source_dir, fp)
-        if not path.isfile(source):
+        if not (path.isfile(source) or path.isdir(source)):
             print(f"Source file {source} does not exist!")
             exit(1)
 
