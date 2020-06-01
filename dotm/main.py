@@ -25,19 +25,39 @@ def load_config(source_dir):
             exit(1)
 
 
+def to_dotfile(path, source_dir, target_dir):
+    """Convert a path to a dotfile.
+
+    A path is the relative path to a dotfile file which gets linked from the
+    current working directory to the users home directory.
+
+    An optional target file override can be specified by appending " ->
+    /absolute/path" to a path.
+    """
+    source = Path(source_dir, path)
+    target = Path(target_dir, path)
+
+    # Check if the path has a target override
+    if " -> " in path:
+        path, override = path.split(" -> ", 1)
+        source = Path(source_dir, path)
+        target = Path(override)
+
+    return Dotfile(source, target, path)
+
+
 def relevant_files(config):
     hostname = gethostname()
-
     relevant = []
-    for hosts, files in config.items():
-        if hostname in hosts.split("|"):
-            relevant.extend(files)
-        elif hosts == "all":
+
+    for host_set, files in config.items():
+        if hostname in host_set.split("|") or host_set == "all":
             relevant.extend(files)
 
     if not relevant:
         print(f'There are no files matching the host "{hostname}".')
         exit(1)
+
     return relevant
 
 
@@ -78,9 +98,7 @@ def link(config, source_dir, target_dir):
     existing = []
     created = []
     for path in relevant_files(config):
-        dotfile = Dotfile(
-            source=Path(source_dir, path), target=Path(target_dir, path), name=path
-        )
+        dotfile = to_dotfile(path, source_dir, target_dir)
 
         if not source_exists(dotfile):
             print(f"Source file {dotfile.source} does not exist!")

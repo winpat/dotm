@@ -26,8 +26,10 @@ laptop|desktop:
   - .config/dunst
 laptop:
   - .config/i3
+  - nixos/laptop.nix -> /etc/nixos/configuration.nix
 desktop:
   - .config/openbox
+  - nixos/desktop.nix -> /etc/nixos/configuration.nix
 ```
 
 Then simply run dotm in the same directory:

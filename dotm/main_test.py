@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from dotm.conftest import touch_dotrc
-from dotm.main import link, load_config, relevant_files
+from dotm.main import Dotfile, link, load_config, relevant_files, to_dotfile
 
 
 def test_missing_dotrc(source_dir, capsys):
@@ -72,13 +72,12 @@ def test_existing_dotfile_file(source_dir, dest_dir, capsys):
     assert "Please resolve the conflict manually!" in captured.out
 
 
-def test_missing_dotfile(source_dir, dest_dir):
-    dotfile = ".emacs"
-    dotrc = {"all": [dotfile]}
+def test_missing_dotfile_target(source_dir, dest_dir):
+    dotrc = {"all": [".emacs"]}
     touch_dotrc(source_dir, dotrc)
 
-    existing, missing = link(dotrc, source_dir, dest_dir)
-    assert len(missing) == 1
+    existing, created = link(dotrc, source_dir, dest_dir)
+    assert len(created) == 1
     assert len(existing) == 0
 
 
@@ -101,10 +100,38 @@ def test_relevant_files(mocker, dotrc, file_paths, hostname):
 
 
 def test_no_relevant_files(capsys):
-
     with pytest.raises(SystemExit) as e:
         relevant_files({})
         assert e.value.code == 1
 
     captured = capsys.readouterr()
     assert "There are no files matching the host" in captured.out
+
+
+@pytest.mark.parametrize(
+    "path,dotfile",
+    [
+        (
+            ".emacs",
+            Dotfile(
+                source=Path("/home/user/dotfiles/.emacs"),
+                target=Path("/home/user/.emacs"),
+                name=".emacs",
+            ),
+        ),
+        (
+            "host-configuration.nix -> /etc/nixos/hostname.nix",
+            Dotfile(
+                source=Path("/home/user/dotfiles/host-configuration.nix"),
+                target=Path("/etc/nixos/hostname.nix"),
+                name="host-configuration.nix",
+            ),
+        ),
+    ],
+)
+def test_to_dotfile(mocker, path, dotfile):
+    source_dir = "/home/user/dotfiles"
+    target_dir = "/home/user"
+    mocker.patch("dotm.main.Path.cwd", return_value=Path(source_dir))
+    mocker.patch("dotm.main.Path.home", return_value=Path(target_dir))
+    assert to_dotfile(path, source_dir, target_dir) == dotfile
