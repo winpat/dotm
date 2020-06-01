@@ -27,11 +27,18 @@ def load_config(source_dir):
 
 def relevant_files(config):
     hostname = gethostname()
-    file_paths = config.get(hostname, []) + config.get("all", [])
-    if not file_paths:
+
+    relevant = []
+    for hosts, files in config.items():
+        if hostname in hosts.split("|"):
+            relevant.extend(files)
+        elif hosts == "all":
+            relevant.extend(files)
+
+    if not relevant:
         print(f'There are no files matching the host "{hostname}".')
         exit(1)
-    return file_paths
+    return relevant
 
 
 def target_exists(df):

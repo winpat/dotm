@@ -22,6 +22,8 @@ all:
   - .emacs
   - .tmux.conf
   - .bashrc
+laptop|desktop:
+  - .config/dunst
 laptop:
   - .config/i3
 desktop:

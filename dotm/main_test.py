@@ -90,7 +90,9 @@ def test_missing_dotfile(source_dir, dest_dir):
             {"all": [".emacs"], "host1": [".tmux.conf"], "otherhost": [".vimrc"]},
             {".emacs", ".tmux.conf"},
             "host1",
-        )
+        ),
+        # Multi host block
+        ({"host1|host2|host3": [".emacs"]}, {".emacs"}, "host1"),
     ],
 )
 def test_relevant_files(mocker, dotrc, file_paths, hostname):
