@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from dotm.conftest import touch_dotrc
-from dotm.main import link, load_config
+from dotm.main import link, load_config, relevant_files
 
 
 def test_missing_dotrc(source_dir, capsys):
@@ -80,3 +80,19 @@ def test_missing_dotfile(source_dir, dest_dir):
     existing, missing = link(dotrc, source_dir, dest_dir)
     assert len(missing) == 1
     assert len(existing) == 0
+
+
+@pytest.mark.parametrize(
+    "dotrc,file_paths,hostname",
+    [
+        # Straight forward with "all" block
+        (
+            {"all": [".emacs"], "host1": [".tmux.conf"], "otherhost": [".vimrc"]},
+            {".emacs", ".tmux.conf"},
+            "host1",
+        )
+    ],
+)
+def test_relevant_files(mocker, dotrc, file_paths, hostname):
+    mocker.patch("dotm.main.gethostname", return_value=hostname)
+    assert set(relevant_files(dotrc)) == file_paths
