@@ -98,3 +98,13 @@ def test_missing_dotfile(source_dir, dest_dir):
 def test_relevant_files(mocker, dotrc, file_paths, hostname):
     mocker.patch("dotm.main.gethostname", return_value=hostname)
     assert set(relevant_files(dotrc)) == file_paths
+
+
+def test_no_relevant_files(capsys):
+
+    with pytest.raises(SystemExit) as e:
+        relevant_files({})
+        assert e.value.code == 1
+
+    captured = capsys.readouterr()
+    assert "There are no files matching the host" in captured.out
