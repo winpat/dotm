@@ -12,12 +12,12 @@ Dotfile = namedtuple("Dotfile", ["source", "target", "name"])
 
 def load_config(source_dir):
     """Load .dotrc file."""
-    dotrc = source_dir / ".dotrc"
-    if not dotrc.is_file():
+    config_file = source_dir / ".dotrc"
+    if not config_file.is_file():
         print("Source directory does not contain a .dotrc file")
         exit(1)
 
-    with dotrc.open() as f:
+    with config_file.open() as f:
         try:
             return yaml.load(f, Loader=yaml.BaseLoader)
         except yaml.YAMLError:
@@ -28,8 +28,8 @@ def load_config(source_dir):
 def to_dotfile(path, source_dir, target_dir):
     """Convert a path to a dotfile.
 
-    A path is the relative path to a dotfile file which gets linked from the
-    current working directory to the users home directory.
+    A path is relative to a dotfile file which gets linked from the current
+    working directory to the users home directory.
 
     An optional target file override can be specified by appending " ->
     /absolute/path" to a path.
@@ -61,36 +61,38 @@ def relevant_files(config):
     return relevant
 
 
-def target_exists(df):
+def target_exists(dotfile):
     """Check if a dotfile exists and points to the correct file."""
-    if df.target.is_symlink() and df.target.resolve() == df.source:
-        return True
-    return False
+    is_link = dotfile.target.is_symlink()
+    points_correctly = dotfile.target.resolve() == dotfile.source
+    return is_link and points_correctly
 
 
-def source_exists(df):
-    return df.source.is_file() or df.source.is_dir()
+def source_exists(dotfile):
+    return dotfile.source.is_file() or dotfile.source.is_dir()
 
 
-def create(df):
-    df.target.symlink_to(df.source)
+def create(dotfile):
+    dotfile.target.symlink_to(dotfile.source)
 
 
-def conflicts(df):
-    exists = df.target.exists()
-    linked_correctly = df.target.is_symlink() and df.target.resolve() == df.source
+def conflicts(dotfile):
+    exists = dotfile.target.exists()
+    linked_correctly = (
+        dotfile.target.is_symlink() and dotfile.target.resolve() == dotfile.source
+    )
     return exists and not linked_correctly
 
 
 def print_status(existing, created):
     if existing:
         print("The following files were not touched:")
-        for df in existing:
-            print("\t", df.name)
+        for dotfile in existing:
+            print("\t", dotfile.name)
     if created:
         print("The following were symlinked:")
-        for df in created:
-            print("\t", df.name)
+        for dotfile in created:
+            print("\t", dotfile.name)
 
 
 def link(config, source_dir, target_dir):
