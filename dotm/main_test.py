@@ -24,7 +24,7 @@ def test_invalid_dotrc(source_dir, capsys):
         assert we.value.code == 1
 
     captured = capsys.readouterr()
-    assert captured.out == ".dotrc is not valid\n"
+    assert captured.out == ".dotrc is invalid\n"
 
 
 def test_host_specific_dotrc(source_dir, dest_dir, dotrc, mocker):

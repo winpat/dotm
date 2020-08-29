@@ -1,4 +1,4 @@
 .PHONY: test
 
 test:
-	pytest --isort --flake8 --black
+	pytest --isort --flake8 --black --mypy
