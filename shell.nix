@@ -16,6 +16,8 @@ stdenv.mkDerivation {
     python37Packages.pytest-mypy
 
     python37Packages.ipython
+    python37Packages.ipdb
+
     python37Packages.black
     python37Packages.isort
     python37Packages.mypy

@@ -3,86 +3,12 @@ from pathlib import Path
 import pytest
 
 from dotm.conftest import touch_dotrc
-from dotm.main import Dotfile, link, load_config, relevant_files, to_dotfile
-
-
-def test_missing_dotrc(source_dir, capsys):
-    with pytest.raises(SystemExit) as we:
-        load_config(source_dir)
-        assert we.value.code == 1
-
-    captured = capsys.readouterr()
-    assert captured.out == "Source directory does not contain a .dotrc file\n"
-
-
-def test_invalid_dotrc(source_dir, capsys):
-    dotrc = Path(source_dir) / ".dotrc"
-    dotrc.write_text("somekey: somevalue: someothervalue")
-
-    with pytest.raises(SystemExit) as we:
-        load_config(source_dir)
-        assert we.value.code == 1
-
-    captured = capsys.readouterr()
-    assert captured.out == ".dotrc is invalid\n"
-
-
-def test_host_specific_dotrc(source_dir, dest_dir, dotrc, mocker):
-
-    files = touch_dotrc(source_dir, dotrc)
-    mocker.patch("dotm.main.gethostname", return_value="host1")
-
-    link(dotrc, source_dir, dest_dir)
-
-    for f in files:
-        p = Path(f"{dest_dir}/{f}")
-        assert p.is_symlink()
-        assert p.resolve(f"{source_dir}/{f}")
-
-
-def test_existing_dotfile_link(source_dir, dest_dir):
-    dotfile = ".emacs"
-    dotrc = {"all": [dotfile]}
-    touch_dotrc(source_dir, dotrc)
-
-    # Ensure the link exists
-    source_file = source_dir / dotfile
-    link_target = dest_dir / dotfile
-    link_target.symlink_to(source_file)
-
-    existing, missing = link(dotrc, source_dir, dest_dir)
-    assert len(existing) == 1
-    assert len(missing) == 0
-
-
-def test_existing_dotfile_file(source_dir, dest_dir, capsys):
-    """Ensure that dotm will not override existing files which are not symlinks."""
-    dotfile = ".emacs"
-    dotrc = {"all": [dotfile]}
-    touch_dotrc(source_dir, dotrc)
-
-    dotfile = Path(dest_dir, dotfile)
-    dotfile.touch()
-
-    with pytest.raises(SystemExit) as we:
-        link(dotrc, source_dir, dest_dir)
-        assert we.value.code == 1
-
-    captured = capsys.readouterr()
-    assert "Please resolve the conflict manually!" in captured.out
-
-
-def test_missing_dotfile_target(source_dir, dest_dir):
-    dotrc = {"all": [".emacs"]}
-    touch_dotrc(source_dir, dotrc)
-
-    existing, created = link(dotrc, source_dir, dest_dir)
-    assert len(created) == 1
-    assert len(existing) == 0
+from dotm.dotfile import Dotfile
+from dotm.main import dotm, get_relevant_files, path_to_dotfile
 
 
 @pytest.mark.parametrize(
-    "dotrc,file_paths,hostname",
+    "config,file_paths,hostname",
     [
         # Straight forward with "all" block
         (
@@ -94,44 +20,52 @@ def test_missing_dotfile_target(source_dir, dest_dir):
         ({"host1|host2|host3": [".emacs"]}, {".emacs"}, "host1"),
     ],
 )
-def test_relevant_files(mocker, dotrc, file_paths, hostname):
+def test_relevant_files(mocker, config, file_paths, hostname):
     mocker.patch("dotm.main.gethostname", return_value=hostname)
-    assert set(relevant_files(dotrc)) == file_paths
+    assert set(get_relevant_files(config)) == file_paths
 
 
-def test_no_relevant_files(capsys):
+@pytest.mark.parametrize(
+    "path,source_directory,target_directory,expected_dotfile",
+    [
+        (
+            ".emacs",
+            Path("/source"),
+            Path("/target"),
+            Dotfile(".emacs", Path("/source/.emacs"), Path("/target/.emacs")),
+        ),
+        (
+            ".emacs -> /tmp/.emacs",
+            Path("/source"),
+            Path("/target"),
+            Dotfile(".emacs", Path("/source/.emacs"), Path("/tmp/.emacs")),
+        ),
+    ],
+)
+def test_path_to_dotfile(path, source_directory, target_directory, expected_dotfile):
+    df = path_to_dotfile(path, source_directory, target_directory)
+    assert df.path == expected_dotfile.path
+    assert df.source == expected_dotfile.source
+    assert df.target == expected_dotfile.target
+
+
+def test_no_relevant_files(capsys, source_directory, target_directory):
+    config = {}
     with pytest.raises(SystemExit) as e:
-        relevant_files({})
-        assert e.value.code == 1
+        dotm(config, source_directory, target_directory)
 
+    assert e.value.code == 1
     captured = capsys.readouterr()
     assert "There are no files matching the host" in captured.out
 
 
-@pytest.mark.parametrize(
-    "path,dotfile",
-    [
-        (
-            ".emacs",
-            Dotfile(
-                source=Path("/home/user/dotfiles/.emacs"),
-                target=Path("/home/user/.emacs"),
-                name=".emacs",
-            ),
-        ),
-        (
-            "host-configuration.nix -> /etc/nixos/hostname.nix",
-            Dotfile(
-                source=Path("/home/user/dotfiles/host-configuration.nix"),
-                target=Path("/etc/nixos/hostname.nix"),
-                name="host-configuration.nix",
-            ),
-        ),
-    ],
-)
-def test_to_dotfile(mocker, path, dotfile):
-    source_dir = "/home/user/dotfiles"
-    target_dir = "/home/user"
-    mocker.patch("dotm.main.Path.cwd", return_value=Path(source_dir))
-    mocker.patch("dotm.main.Path.home", return_value=Path(target_dir))
-    assert to_dotfile(path, source_dir, target_dir) == dotfile
+# TODO Introduce a couple more integration tests
+def test_dotm(mocker, source_directory, target_directory):
+    config = {"all": [".emacs"], "host1": [".bashrc"], "host2": [".zshrc"]}
+    touch_dotrc(source_directory, config)
+
+    mocker.patch("dotm.main.gethostname", return_value="host1")
+    existing, created = dotm(config, source_directory, target_directory)
+
+    assert [df.path for df in created] == [".emacs", ".bashrc"]
+    assert existing == []
