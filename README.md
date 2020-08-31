@@ -43,9 +43,9 @@ You can spawn an environment with all dependencies using nix-shell:
 nix-shell
 ```
 
-To run the suite, simply launch pytest:
+To run the suite, simply launch pytest through the make target:
 ```bash
-pytest --isort ---flake8 --black
+make test
 ```
 
 
