@@ -15,5 +15,6 @@ stdenv.mkDerivation {
     python3Packages.pytest-black
     python3Packages.pytest-mypy
     python3Packages.ipdb
+    python3Packages.types-pyyaml
   ];
 }
