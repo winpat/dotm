@@ -9,7 +9,7 @@ A dotfile manager with support for host specific configuration.
 Use the [nix package manager](https://nixos.org/nix) to install dotm.
 
 ```bash
-nix-env -f default.nix -i dotm
+nix profile install github:winpat/dotm
 ```
 
 ## Usage
@@ -41,13 +41,15 @@ dotm
 ## Development
 
 You can spawn an environment with all dependencies using nix-shell:
+
 ```bash
-nix-shell
+nix develop
 ```
 
 To run the suite, simply launch pytest through the make target:
+
 ```bash
-make test
+nix develop --check
 ```
 
 ## Contributing
