@@ -2,7 +2,7 @@
   description = "A symlink-based dotfile manager with support for multiple hosts";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-22.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
   };
 
   outputs = { self, nixpkgs }:
@@ -14,7 +14,6 @@
           pkgs.python3Packages.pytest
           pkgs.python3Packages.pytest-mock
           pkgs.python3Packages.pytest-isort
-          pkgs.python3Packages.pytest-flake8
           pkgs.python3Packages.pytest-black
           pkgs.python3Packages.pytest-mypy
           pkgs.python3Packages.ipdb
