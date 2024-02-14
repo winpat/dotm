@@ -18,7 +18,7 @@ Add a .dotrc file to your dotfiles repository. The dotrc file describes which
 files should be linked depending on the hostname. If you want to link a file
 on every host, configure it under the "all" key:
 
-```yaml
+```
 all:
   - .emacs
   - .tmux.conf

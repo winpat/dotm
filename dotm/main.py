@@ -49,7 +49,6 @@ def dotm(config: Dict, source_directory: Path, target_directory: Path) -> Tuple:
     existing = []
     new = []
     for path in relevant_files:
-
         df = path_to_dotfile(path, source_directory, target_directory)
 
         if not exists(df):

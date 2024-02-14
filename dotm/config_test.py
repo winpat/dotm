@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from dotm.config import load_config
+from dotm.config import load_config, parse_config
+from dotm.dotfile import Dotfile
 
 
 def test_missing_dotrc(source_directory, capsys):
@@ -26,3 +27,30 @@ def test_invalid_dotrc(source_directory, capsys):
 
     captured = capsys.readouterr()
     assert captured.out == ".dotrc is invalid\n"
+
+
+def test_parse_config():
+    cfg = """
+all:
+ - .bashrc
+
+tron:
+ - .emacs
+    """
+
+    assert parse_config(cfg) == {
+        "all": [
+            Dotfile(
+                path=".bashrc",
+                source=Path.cwd() / ".bashrc",
+                target=Path.home() / ".bashrc",
+            )
+        ],
+        "tron": [
+            Dotfile(
+                path=".emacs",
+                source=Path.cwd() / ".emacs",
+                target=Path.home() / ".emacs",
+            )
+        ],
+    }

@@ -9,8 +9,6 @@
     let pkgs = nixpkgs.legacyPackages.x86_64-linux;
         deps = [
           pkgs.python3
-          pkgs.python3Packages.pyyaml
-          pkgs.python3Packages.types-pyyaml
           pkgs.python3Packages.pytest
           pkgs.python3Packages.pytest-mock
           pkgs.python3Packages.pytest-isort

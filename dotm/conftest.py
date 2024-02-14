@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
 import pytest
-import yaml
 
 from dotm.dotfile import Dotfile
 
@@ -33,11 +32,17 @@ def dotrc(source_directory, target_directory) -> Dict[str, List[str]]:
 
 
 def touch_dotrc(source_directory: Path, dotrc: Dict[str, List[str]]) -> List:
-    files = flatten(dotrc.values())
-    with open(f"{source_directory}/.dotrc", "w") as f:
-        yaml.dump(dotrc, f)
-    for f in files:
+    text = ""
+    for host, files in dotrc.items():
+        text += f"{host}:\n"
+        for f in files:
+            text += f"  - {f}\n"
+
+    (source_directory / ".dotrc").write_text(text)
+
+    for f in flatten(dotrc.values()):
         (source_directory / str(f)).touch()
+
     return files
 
 
