@@ -12,10 +12,10 @@ from dotm.dotfile import Dotfile, conflicts, exists, link, linked
 def get_relevant_files(config: Dict) -> List[str]:
     """Collect relevant files for host."""
     hostname = gethostname()
-    relevant: List[str] = []
 
-    for host_set, files in config.items():
-        if hostname in host_set.split("|") or host_set == "all":
+    relevant: List[str] = []
+    for host, files in config.items():
+        if host == hostname or host == "all":
             relevant.extend(files)
 
     return relevant

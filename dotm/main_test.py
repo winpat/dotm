@@ -10,14 +10,12 @@ from dotm.main import dotm, get_relevant_files, path_to_dotfile
 @pytest.mark.parametrize(
     "config,file_paths,hostname",
     [
-        # Straight forward with "all" block
         (
             {"all": [".emacs"], "host1": [".tmux.conf"], "otherhost": [".vimrc"]},
             {".emacs", ".tmux.conf"},
             "host1",
         ),
-        # Multi host block
-        ({"host1|host2|host3": [".emacs"]}, {".emacs"}, "host1"),
+        ({"host1": [".emacs"]}, {".emacs"}, "host1"),
     ],
 )
 def test_relevant_files(mocker, config, file_paths, hostname):
