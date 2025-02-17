@@ -6,30 +6,28 @@ from dotm.config import load_config, parse_config
 from dotm.dotfile import Dotfile
 
 
-def test_missing_dotrc(source_directory, capsys):
-    with pytest.raises(SystemExit) as we:
-        load_config(source_directory)
+def test_missing_dotrc(source_dir, target_dir, capsys):
+    with pytest.raises(SystemExit) as excinfo:
+        load_config(source_dir, target_dir)
 
-    assert we.value.code == 1
-
-    captured = capsys.readouterr()
-    assert captured.out == "Source directory does not contain a .dotrc file\n"
-
-
-def test_invalid_dotrc(source_directory, capsys):
-    dotrc = Path(source_directory) / ".dotrc"
-    dotrc.write_text("somekey: somevalue: someothervalue")
-
-    with pytest.raises(SystemExit) as we:
-        load_config(source_directory)
-
-    assert we.value.code == 1
-
-    captured = capsys.readouterr()
-    assert captured.out == ".dotrc is invalid\n"
+    stderr = capsys.readouterr().out
+    assert stderr == "Source directory does not contain a .dotrc file\n"
+    assert excinfo.value.code == 1
 
 
-def test_parse_config():
+def test_invalid_dotrc(source_dir, target_dir, capsys):
+    dotrc = Path(source_dir) / ".dotrc"
+    dotrc.write_text("key: value: other")
+
+    with pytest.raises(SystemExit) as excinfo:
+        load_config(source_dir, target_dir)
+
+    stderr = capsys.readouterr().out
+    assert stderr == "Unable to parse parse line 0: key: value: other\n"
+    assert excinfo.value.code == 1
+
+
+def test_parse_config(source_dir, target_dir):
     cfg = """
 all:
  - .bashrc
@@ -38,19 +36,19 @@ tron:
  - .emacs
     """
 
-    assert parse_config(cfg) == {
+    assert parse_config(cfg, source_dir, target_dir) == {
         "all": [
             Dotfile(
                 path=".bashrc",
-                source=Path.cwd() / ".bashrc",
-                target=Path.home() / ".bashrc",
+                source=source_dir / ".bashrc",
+                target=target_dir / ".bashrc",
             )
         ],
         "tron": [
             Dotfile(
                 path=".emacs",
-                source=Path.cwd() / ".emacs",
-                target=Path.home() / ".emacs",
+                source=source_dir / ".emacs",
+                target=target_dir / ".emacs",
             )
         ],
     }

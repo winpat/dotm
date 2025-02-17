@@ -76,10 +76,13 @@ def dotm(config: Dict, source_directory: Path, target_directory: Path) -> Tuple:
 
 
 def main():
+    working_dir = Path.cwd()
+    home_dir = Path.home()
+
     dotm(
-        config=load_config(Path.cwd()),
-        source_directory=Path.cwd(),
-        target_directory=Path.home(),
+        config=load_config(working_dir, home_dir),
+        source_directory=working_dir,
+        target_directory=home_dir,
     )
 
 

@@ -7,6 +7,16 @@ from dotm.dotfile import Dotfile
 
 
 @pytest.fixture
+def source_dir(tmp_path_factory):
+    return tmp_path_factory.mktemp("cwd")
+
+
+@pytest.fixture
+def target_dir(tmp_path_factory):
+    return tmp_path_factory.mktemp("home")
+
+
+@pytest.fixture
 def source_directory(tmp_path) -> Path:
     source = tmp_path / "source"
     source.mkdir()

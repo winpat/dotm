@@ -1,50 +1,51 @@
-import re
-from collections import defaultdict, deque
+from collections import defaultdict
 from pathlib import Path
-from typing import Dict, NamedTuple
 
 from dotm.dotfile import Dotfile
 
 
-def load_config(source_directory: Path) -> Dict:
+def load_config(source_dir: Path, target_dir: Path) -> dict:
     """Load .dotrc file from source directory."""
-    config_file = source_directory / ".dotrc"
+
+    config_file = source_dir / ".dotrc"
 
     if not config_file.is_file():
         print("Source directory does not contain a .dotrc file")
         exit(1)
 
     try:
-        return parse_config(config_file.read_text())
-    except:
-        print(".dotrc is invalid")
+        config_txt = config_file.read_text()
+        return parse_config(config_txt, source_dir, target_dir)
+    except ValueError as exc:
+        print(exc)
         exit(1)
 
 
-def parse_config(text: str):
-    """Parse the dotrc configuration file."""
-    cwd = Path.cwd()
-    home = Path.home()
+def parse_config(
+    text: str, source_dir: Path, target_dir: Path
+) -> dict[str, list[Dotfile]]:
+    """Parse the .dotrc and resolve paths."""
 
     cfg = defaultdict(list)
-    line_nr = 0
-    hosts = []
+    lines = text.split("\n")
 
-    for line_nr, line in enumerate(text.split("\n")):
+    for line_nr, line in enumerate(lines):
         match line.split():
-            case []:
-                continue
             case [host_group] if host_group.endswith(":"):
                 hosts = host_group.removesuffix(":").split("|")
-            case ["-", name]:
-                df = Dotfile(path=name, source=cwd / name, target=home / name)
+            case ["-", fname]:
+                df = Dotfile(
+                    path=fname, source=source_dir / fname, target=target_dir / fname
+                )
                 for host in hosts:
                     cfg[host].append(df)
-            case ["-", name, "->", target]:
-                df = Dotfile(path=name, source=cwd / name, target=Path(target))
+            case ["-", fname, "->", target]:
+                df = Dotfile(path=fname, source=source_dir / fname, target=Path(target))
                 for host in hosts:
                     cfg[host].append(df)
+            case []:
+                continue
             case _:
-                raise ValueError(f"Unable to parse parse line {line_nr}.")
+                raise ValueError(f"Unable to parse parse line {line_nr}: {line}")
 
     return cfg
