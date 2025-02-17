@@ -18,6 +18,9 @@ def get_relevant_files(config: Dict) -> List[str]:
         if host == hostname or host == "all":
             relevant.extend(files)
 
+    if not relevant:
+        raise ValueError(f'No files matching host "{hostname}".')
+
     return relevant
 
 
@@ -41,9 +44,10 @@ def path_to_dotfile(
 def dotm(config: Dict, source_directory: Path, target_directory: Path) -> Tuple:
     """Link relevant dotfiles according to .dotrc configuration."""
 
-    relevant_files = get_relevant_files(config)
-    if not relevant_files:
-        print("There are no files matching the host.")
+    try:
+        relevant_files = get_relevant_files(config)
+    except ValueError as exc:
+        print(exc)
         exit(1)
 
     existing = []

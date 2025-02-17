@@ -47,14 +47,15 @@ def test_path_to_dotfile(path, source_directory, target_directory, expected_dotf
     assert df.target == expected_dotfile.target
 
 
-def test_no_relevant_files(capsys, source_directory, target_directory):
-    config = {}
-    with pytest.raises(SystemExit) as e:
-        dotm(config, source_directory, target_directory)
+def test_no_relevant_files(source_directory, target_directory, capsys, mocker):
+    mocker.patch("dotm.main.gethostname", return_value="host")
 
-    assert e.value.code == 1
-    captured = capsys.readouterr()
-    assert "There are no files matching the host" in captured.out
+    with pytest.raises(SystemExit) as excinfo:
+        dotm({}, source_directory, target_directory)
+
+    stderr = capsys.readouterr().out
+    assert 'No files matching host "host"' in stderr
+    assert excinfo.value.code == 1
 
 
 # TODO Introduce a couple more integration tests
