@@ -7,6 +7,9 @@ class Dotfile(NamedTuple):
     source: Path
     target: Path
 
+    def __str__(self) -> str:
+        return self.path
+
 
 def exists(df: Dotfile) -> bool:
     """Check if the source of a dotfile is a file or directory."""

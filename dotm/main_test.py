@@ -1,10 +1,8 @@
-from pathlib import Path
-
 import pytest
 
 from dotm.conftest import touch_dotrc
 from dotm.dotfile import Dotfile
-from dotm.main import dotm, get_relevant_files, path_to_dotfile
+from dotm.main import dotm, get_relevant_files
 
 
 @pytest.mark.parametrize(
@@ -23,30 +21,6 @@ def test_relevant_files(mocker, config, file_paths, hostname):
     assert set(get_relevant_files(config)) == file_paths
 
 
-@pytest.mark.parametrize(
-    "path,source_directory,target_directory,expected_dotfile",
-    [
-        (
-            ".emacs",
-            Path("/source"),
-            Path("/target"),
-            Dotfile(".emacs", Path("/source/.emacs"), Path("/target/.emacs")),
-        ),
-        (
-            ".emacs -> /tmp/.emacs",
-            Path("/source"),
-            Path("/target"),
-            Dotfile(".emacs", Path("/source/.emacs"), Path("/tmp/.emacs")),
-        ),
-    ],
-)
-def test_path_to_dotfile(path, source_directory, target_directory, expected_dotfile):
-    df = path_to_dotfile(path, source_directory, target_directory)
-    assert df.path == expected_dotfile.path
-    assert df.source == expected_dotfile.source
-    assert df.target == expected_dotfile.target
-
-
 def test_no_relevant_files(source_directory, target_directory, capsys, mocker):
     mocker.patch("dotm.main.gethostname", return_value="host")
 
@@ -60,11 +34,33 @@ def test_no_relevant_files(source_directory, target_directory, capsys, mocker):
 
 # TODO Introduce a couple more integration tests
 def test_dotm(mocker, source_directory, target_directory):
-    config = {"all": [".emacs"], "host1": [".bashrc"], "host2": [".zshrc"]}
-    touch_dotrc(source_directory, config)
+    cfg = {
+        "all": [
+            Dotfile(
+                path=".emacs",
+                source=source_directory / ".emacs",
+                target=target_directory / ".emacs",
+            )
+        ],
+        "host1": [
+            Dotfile(
+                path=".bashrc",
+                source=source_directory / ".bashrc",
+                target=target_directory / ".bashrc",
+            )
+        ],
+        "host2": [
+            Dotfile(
+                path=".zshrc",
+                source=source_directory / ".zshrc",
+                target=target_directory / ".zshrc",
+            )
+        ],
+    }
+    touch_dotrc(source_directory, cfg)
 
     mocker.patch("dotm.main.gethostname", return_value="host1")
-    existing, created = dotm(config, source_directory, target_directory)
+    existing, created = dotm(cfg, source_directory, target_directory)
 
     assert [df.path for df in created] == [".emacs", ".bashrc"]
     assert existing == []
