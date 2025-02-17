@@ -15,6 +15,7 @@
           python3Packages.pytest-black
           python3Packages.pytest-mypy
           python3Packages.ipdb
+          pyright
         ];
     in {
       devShell.x86_64-linux = pkgs.mkShell {
