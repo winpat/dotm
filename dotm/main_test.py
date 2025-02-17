@@ -25,7 +25,7 @@ def test_no_relevant_files(source_dir, target_dir, capsys, mocker):
     mocker.patch("dotm.main.gethostname", return_value="host")
 
     with pytest.raises(SystemExit) as excinfo:
-        dotm({}, source_dir, target_dir)
+        dotm({})
 
     stderr = capsys.readouterr().out
     assert 'No files matching host "host"' in stderr
@@ -60,7 +60,7 @@ def test_dotm(mocker, source_dir, target_dir):
     touch_dotrc(source_dir, cfg)
 
     mocker.patch("dotm.main.gethostname", return_value="host1")
-    existing, created = dotm(cfg, source_dir, target_dir)
+    existing, created = dotm(cfg)
 
     assert [df.name for df in created] == [".emacs", ".bashrc"]
     assert existing == []

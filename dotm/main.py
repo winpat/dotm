@@ -23,9 +23,7 @@ def get_relevant_files(config: dict) -> list[Dotfile]:
     return relevant
 
 
-def dotm(
-    config: dict, source_dir: Path, target_dir: Path
-) -> tuple[list[Dotfile], list[Dotfile]]:
+def dotm(config: dict) -> tuple[list[Dotfile], list[Dotfile]]:
     """Link relevant dotfiles according to .dotrc configuration."""
 
     try:
@@ -62,14 +60,8 @@ def dotm(
 
 
 def main():
-    working_dir = Path.cwd()
-    home_dir = Path.home()
-
-    dotm(
-        config=load_config(working_dir, home_dir),
-        source_dir=working_dir,
-        target_dir=home_dir,
-    )
+    cfg = load_config(source_dir=Path.home(), target_dir=Path.cwd())
+    dotm(cfg)
 
 
 if __name__ == "__main__":
