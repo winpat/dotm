@@ -35,12 +35,12 @@ def parse_config(
                 hosts = host_group.removesuffix(":").split("|")
             case ["-", fname]:
                 df = Dotfile(
-                    path=fname, source=source_dir / fname, target=target_dir / fname
+                    name=fname, source=source_dir / fname, target=target_dir / fname
                 )
                 for host in hosts:
                     cfg[host].append(df)
             case ["-", fname, "->", target]:
-                df = Dotfile(path=fname, source=source_dir / fname, target=Path(target))
+                df = Dotfile(name=fname, source=source_dir / fname, target=Path(target))
                 for host in hosts:
                     cfg[host].append(df)
             case []:

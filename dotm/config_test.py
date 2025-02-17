@@ -39,14 +39,14 @@ tron:
     assert parse_config(cfg, source_dir, target_dir) == {
         "all": [
             Dotfile(
-                path=".bashrc",
+                name=".bashrc",
                 source=source_dir / ".bashrc",
                 target=target_dir / ".bashrc",
             )
         ],
         "tron": [
             Dotfile(
-                path=".emacs",
+                name=".emacs",
                 source=source_dir / ".emacs",
                 target=target_dir / ".emacs",
             )

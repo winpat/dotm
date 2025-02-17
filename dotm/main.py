@@ -38,7 +38,7 @@ def dotm(
     new = []
     for df in relevant_files:
         if not df.exists:
-            print(f"Source {df.source} of dotfile {df.path} does not exist!")
+            print(f"Source {df.source} of dotfile {df.name} does not exist!")
             exit(1)
 
         if df.linked:
@@ -56,7 +56,7 @@ def dotm(
 
     for df in new:
         df.link
-        print(df.path)
+        print(df.name)
 
     return existing, new
 

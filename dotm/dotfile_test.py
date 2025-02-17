@@ -17,7 +17,7 @@ def test_exists(dotfile):
 
 
 def test_conflicts(source_dir, dotfile):
-    config = {"all": [dotfile.path]}
+    config = {"all": [dotfile.name]}
     touch_dotrc(source_dir, config)
 
     dotfile.link()
@@ -32,7 +32,7 @@ def test_conflicts(source_dir, dotfile):
 
 
 def test_linked(source_dir, dotfile):
-    config = {"all": [dotfile.path]}
+    config = {"all": [dotfile.name]}
     touch_dotrc(source_dir, config)
 
     assert not dotfile.linked

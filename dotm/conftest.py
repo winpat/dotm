@@ -16,7 +16,6 @@ def target_dir(tmp_path_factory) -> Path:
     return tmp_path_factory.mktemp("home")
 
 
-
 @pytest.fixture
 def dotrc() -> dict[str, list[str]]:
     return {"all": [".emacs", ".tmux.conf"], "host1": [".vimrc"]}

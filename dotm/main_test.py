@@ -37,21 +37,21 @@ def test_dotm(mocker, source_dir, target_dir):
     cfg = {
         "all": [
             Dotfile(
-                path=".emacs",
+                name=".emacs",
                 source=source_dir / ".emacs",
                 target=target_dir / ".emacs",
             )
         ],
         "host1": [
             Dotfile(
-                path=".bashrc",
+                name=".bashrc",
                 source=source_dir / ".bashrc",
                 target=target_dir / ".bashrc",
             )
         ],
         "host2": [
             Dotfile(
-                path=".zshrc",
+                name=".zshrc",
                 source=source_dir / ".zshrc",
                 target=target_dir / ".zshrc",
             )
@@ -62,5 +62,5 @@ def test_dotm(mocker, source_dir, target_dir):
     mocker.patch("dotm.main.gethostname", return_value="host1")
     existing, created = dotm(cfg, source_dir, target_dir)
 
-    assert [df.path for df in created] == [".emacs", ".bashrc"]
+    assert [df.name for df in created] == [".emacs", ".bashrc"]
     assert existing == []

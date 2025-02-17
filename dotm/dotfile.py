@@ -3,12 +3,12 @@ from typing import NamedTuple
 
 
 class Dotfile(NamedTuple):
-    path: str
+    name: str
     source: Path
     target: Path
 
     def __str__(self) -> str:
-        return self.path
+        return self.name
 
     @property
     def exists(self) -> bool:
