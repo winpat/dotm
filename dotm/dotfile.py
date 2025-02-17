@@ -10,22 +10,21 @@ class Dotfile(NamedTuple):
     def __str__(self) -> str:
         return self.path
 
+    @property
+    def exists(self) -> bool:
+        """Check if source of dotfile is a file or directory."""
+        return self.source.is_file() or self.source.is_dir()
 
-def exists(df: Dotfile) -> bool:
-    """Check if the source of a dotfile is a file or directory."""
-    return df.source.is_file() or df.source.is_dir()
+    @property
+    def linked(self) -> bool:
+        """Check if target of dotfile is a symbolic link."""
+        return self.target.resolve() == self.source
 
+    @property
+    def conflicts(self) -> bool:
+        """Check if target exist and points to a file other than the source."""
+        return self.target.resolve() != self.source
 
-def linked(df: Dotfile) -> bool:
-    """Check if the target of a dotfile is a symbolic link."""
-    return df.target.resolve() == df.source
-
-
-def conflicts(df: Dotfile) -> bool:
-    """Check if the target points to a file other than the source file."""
-    return df.target.resolve() != df.source
-
-
-def link(df: Dotfile) -> None:
-    """Symlink target of dotfile to source."""
-    df.target.symlink_to(df.source)
+    def link(self) -> None:
+        """Symlink target to source."""
+        self.target.symlink_to(self.source)

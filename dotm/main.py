@@ -5,7 +5,7 @@ from socket import gethostname
 from sys import exit
 
 from dotm.config import load_config
-from dotm.dotfile import Dotfile, conflicts, exists, link, linked
+from dotm.dotfile import Dotfile
 
 
 def get_relevant_files(config: dict) -> list[Dotfile]:
@@ -37,12 +37,12 @@ def dotm(
     existing = []
     new = []
     for df in relevant_files:
-        if not exists(df):
+        if not df.exists:
             print(f"Source {df.source} of dotfile {df.path} does not exist!")
             exit(1)
 
-        if linked(df):
-            if conflicts(df):
+        if df.linked:
+            if df.conflicts:
                 print(
                     f"Target file {df.target} already exists."
                     " Please resolve the conflict manually!"
@@ -55,7 +55,7 @@ def dotm(
         new.append(df)
 
     for df in new:
-        link(df)
+        df.link
         print(df.path)
 
     return existing, new

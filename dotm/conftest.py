@@ -16,11 +16,6 @@ def target_dir(tmp_path_factory) -> Path:
     return tmp_path_factory.mktemp("home")
 
 
-@pytest.fixture
-def dotfile(source_dir, target_dir) -> Dotfile:
-    dotfile = ".emacs"
-    return Dotfile(dotfile, source_dir / dotfile, target_dir / dotfile)
-
 
 @pytest.fixture
 def dotrc() -> dict[str, list[str]]:

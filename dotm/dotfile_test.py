@@ -1,44 +1,50 @@
+import pytest
+
 from dotm.conftest import touch_dotrc
-from dotm.dotfile import Dotfile, conflicts, exists, link, linked
+from dotm.dotfile import Dotfile
+
+
+@pytest.fixture
+def dotfile(source_dir, target_dir) -> Dotfile:
+    dotfile = ".emacs"
+    return Dotfile(dotfile, source_dir / dotfile, target_dir / dotfile)
 
 
 def test_exists(dotfile):
-    assert not exists(dotfile)
+    assert not dotfile.exists
     dotfile.source.touch()
-    assert exists(dotfile)
+    assert dotfile.exists
 
 
-def test_conflicts(source_dir, target_dir, dotfile, capsys):
+def test_conflicts(source_dir, dotfile):
     config = {"all": [dotfile.path]}
     touch_dotrc(source_dir, config)
 
-    link(dotfile)
-    assert not conflicts(dotfile)
+    dotfile.link()
+    assert not dotfile.conflicts
 
     other_file = source_dir / "otherfile"
     other_file.touch()
 
     dotfile.target.unlink()
     dotfile.target.symlink_to(other_file)
-    assert conflicts(dotfile)
+    assert dotfile.conflicts
 
 
-def test_linked(source_dir, target_dir, dotfile):
+def test_linked(source_dir, dotfile):
     config = {"all": [dotfile.path]}
     touch_dotrc(source_dir, config)
 
-    assert not linked(dotfile)
-
-    link(dotfile)
-    assert linked(dotfile)
+    assert not dotfile.linked
+    dotfile.link()
+    assert dotfile.linked
 
 
 def test_link(dotfile):
     dotfile.source.touch()
 
-    def correctly_created(df: Dotfile) -> bool:
-        return exists(df) and linked(df) and not conflicts(df)
+    correctly_created = lambda df: df.exists and df.linked and not df.conflicts
 
     assert not correctly_created(dotfile)
-    link(dotfile)
+    dotfile.link()
     assert correctly_created(dotfile)
