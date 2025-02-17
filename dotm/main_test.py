@@ -21,11 +21,11 @@ def test_relevant_files(mocker, config, file_paths, hostname):
     assert set(get_relevant_files(config)) == file_paths
 
 
-def test_no_relevant_files(source_directory, target_directory, capsys, mocker):
+def test_no_relevant_files(source_dir, target_dir, capsys, mocker):
     mocker.patch("dotm.main.gethostname", return_value="host")
 
     with pytest.raises(SystemExit) as excinfo:
-        dotm({}, source_directory, target_directory)
+        dotm({}, source_dir, target_dir)
 
     stderr = capsys.readouterr().out
     assert 'No files matching host "host"' in stderr
@@ -33,34 +33,34 @@ def test_no_relevant_files(source_directory, target_directory, capsys, mocker):
 
 
 # TODO Introduce a couple more integration tests
-def test_dotm(mocker, source_directory, target_directory):
+def test_dotm(mocker, source_dir, target_dir):
     cfg = {
         "all": [
             Dotfile(
                 path=".emacs",
-                source=source_directory / ".emacs",
-                target=target_directory / ".emacs",
+                source=source_dir / ".emacs",
+                target=target_dir / ".emacs",
             )
         ],
         "host1": [
             Dotfile(
                 path=".bashrc",
-                source=source_directory / ".bashrc",
-                target=target_directory / ".bashrc",
+                source=source_dir / ".bashrc",
+                target=target_dir / ".bashrc",
             )
         ],
         "host2": [
             Dotfile(
                 path=".zshrc",
-                source=source_directory / ".zshrc",
-                target=target_directory / ".zshrc",
+                source=source_dir / ".zshrc",
+                target=target_dir / ".zshrc",
             )
         ],
     }
-    touch_dotrc(source_directory, cfg)
+    touch_dotrc(source_dir, cfg)
 
     mocker.patch("dotm.main.gethostname", return_value="host1")
-    existing, created = dotm(cfg, source_directory, target_directory)
+    existing, created = dotm(cfg, source_dir, target_dir)
 
     assert [df.path for df in created] == [".emacs", ".bashrc"]
     assert existing == []

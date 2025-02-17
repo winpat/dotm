@@ -8,14 +8,14 @@ def test_exists(dotfile):
     assert exists(dotfile)
 
 
-def test_conflicts(source_directory, target_directory, dotfile, capsys):
+def test_conflicts(source_dir, target_dir, dotfile, capsys):
     config = {"all": [dotfile.path]}
-    touch_dotrc(source_directory, config)
+    touch_dotrc(source_dir, config)
 
     link(dotfile)
     assert not conflicts(dotfile)
 
-    other_file = source_directory / "otherfile"
+    other_file = source_dir / "otherfile"
     other_file.touch()
 
     dotfile.target.unlink()
@@ -23,9 +23,9 @@ def test_conflicts(source_directory, target_directory, dotfile, capsys):
     assert conflicts(dotfile)
 
 
-def test_linked(source_directory, target_directory, dotfile):
+def test_linked(source_dir, target_dir, dotfile):
     config = {"all": [dotfile.path]}
-    touch_dotrc(source_directory, config)
+    touch_dotrc(source_dir, config)
 
     assert not linked(dotfile)
 

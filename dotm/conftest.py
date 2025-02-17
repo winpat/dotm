@@ -17,41 +17,27 @@ def target_dir(tmp_path_factory):
 
 
 @pytest.fixture
-def source_directory(tmp_path) -> Path:
-    source = tmp_path / "source"
-    source.mkdir()
-    return source
-
-
-@pytest.fixture
-def target_directory(tmp_path) -> Path:
-    target = tmp_path / "destination"
-    target.mkdir()
-    return target
-
-
-@pytest.fixture
-def dotfile(source_directory, target_directory):
+def dotfile(source_dir, target_dir):
     dotfile = ".emacs"
-    return Dotfile(dotfile, source_directory / dotfile, target_directory / dotfile)
+    return Dotfile(dotfile, source_dir / dotfile, target_dir / dotfile)
 
 
 @pytest.fixture
-def dotrc(source_directory, target_directory) -> Dict[str, List[str]]:
+def dotrc() -> Dict[str, List[str]]:
     return {"all": [".emacs", ".tmux.conf"], "host1": [".vimrc"]}
 
 
-def touch_dotrc(source_directory: Path, dotrc: Dict[str, List[str]]) -> List:
+def touch_dotrc(source_dir: Path, dotrc: Dict[str, List[str]]) -> List:
     text = ""
     for host, files in dotrc.items():
         text += f"{host}:\n"
         for f in files:
             text += f"  - {f}\n"
 
-    (source_directory / ".dotrc").write_text(text)
+    (source_dir / ".dotrc").write_text(text)
 
     for f in flatten(dotrc.values()):
-        (source_directory / str(f)).touch()
+        (source_dir / str(f)).touch()
 
     return files
 
