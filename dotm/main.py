@@ -3,13 +3,12 @@
 from pathlib import Path
 from socket import gethostname
 from sys import exit
-from typing import Dict, List, Tuple
 
 from dotm.config import load_config
 from dotm.dotfile import Dotfile, conflicts, exists, link, linked
 
 
-def get_relevant_files(config: Dict) -> List[Dotfile]:
+def get_relevant_files(config: dict) -> list[Dotfile]:
     """Collect relevant files for host."""
     hostname = gethostname()
 
@@ -24,7 +23,9 @@ def get_relevant_files(config: Dict) -> List[Dotfile]:
     return relevant
 
 
-def dotm(config: Dict, source_dir: Path, target_dir: Path) -> Tuple:
+def dotm(
+    config: dict, source_dir: Path, target_dir: Path
+) -> tuple[list[Dotfile], list[Dotfile]]:
     """Link relevant dotfiles according to .dotrc configuration."""
 
     try:
