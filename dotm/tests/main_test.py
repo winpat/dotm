@@ -1,8 +1,9 @@
 import pytest
 
-from dotm.conftest import touch_dotrc
 from dotm.dotfile import Dotfile
 from dotm.main import dotm, get_relevant_files
+
+from .conftest import touch_dotrc
 
 
 @pytest.mark.parametrize(
