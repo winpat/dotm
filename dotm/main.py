@@ -60,7 +60,7 @@ def dotm(config: dict) -> tuple[list[Dotfile], list[Dotfile]]:
 
 
 def main():
-    cfg = load_config(source_dir=Path.home(), target_dir=Path.cwd())
+    cfg = load_config(source_dir=Path.cwd(), target_dir=Path.home())
     dotm(cfg)
 
 
