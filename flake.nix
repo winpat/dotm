@@ -7,8 +7,8 @@
 
   outputs = { self, nixpkgs }:
     let pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        deps = with pkgs; [
-          python3
+        runtimeDeps = with pkgs; [python3];
+        testDeps = with pkgs; [
           python3Packages.pytest
           python3Packages.pytest-mock
           python3Packages.pytest-isort
@@ -17,14 +17,19 @@
           python3Packages.ipdb
           pyright
         ];
+        devDeps = with pkgs; [
+          pyright
+          python3Packages.ipdb
+        ];
     in {
       devShell.x86_64-linux = pkgs.mkShell {
-        buildInputs = deps;
+        buildInputs = runtimeDeps ++ testDeps ++ devDeps;
       };
       packages.x86_64-linux.dotm = pkgs.python3Packages.buildPythonPackage rec {
           name = "dotm";
           src = ./.;
-          propagatedBuildInputs = deps;
+          propagatedBuildInputs = runtimeDeps;
+          checkInputs = testDeps;
         };
       packages.x86_64-linux.default = self.packages.x86_64-linux.dotm;
 
